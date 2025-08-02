@@ -4,11 +4,11 @@
 
 
 a.active hr {
-    display: block;
+  display: block;
 }
 
-*{
-    font-family: "Outfit", sans-serif;
+* {
+  font-family: "Outfit", sans-serif;
 }
 
 .prata-regular {
@@ -17,14 +17,25 @@ a.active hr {
   font-style: normal;
 }
 
-::-webkit-scrollbar{
+::-webkit-scrollbar {
   display: none;
 }
 
 
 @media (max-width: 640px) {
-    a.active{
-      background-color: black;
-      color: white;
-    }
+  a.active {
+    background-color: black;
+    color: white;
+  }
 }
+
+/* Hide number input spinners */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* .no-spinner {
+  -moz-appearance: textfield;
+} */
