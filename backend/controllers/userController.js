@@ -1,6 +1,11 @@
 import validator from 'validator';
 import userModel from "../models/userModel.js";
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+
+const createToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET_KEY);
+}
 
 
 // Route for user login
@@ -31,6 +36,21 @@ const registerUser = async (req, res) => {
         // Hashing Password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Creating new User
+        const newUser = new userModel({
+            name,
+            email,
+            password: hashedPassword
+        })
+
+        // Saving New User to Database
+        const user = await newUser.save();
+
+        const token = createToken(user._id);
+
+        res.json({ success: true, message: "User Registered Successfully", data: user, token });
+
 
     } catch (error) {
 
