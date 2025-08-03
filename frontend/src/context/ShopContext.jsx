@@ -49,7 +49,7 @@ const ShopContextProvider = (props) => {
                         totalCount += cartItems[items][item];
                     }
                 } catch (error) {
-
+                    console.log(error);  // empty
                 }
             }
         }
@@ -60,7 +60,9 @@ const ShopContextProvider = (props) => {
 
         let cartData = structuredClone(cartItems);
 
-        cartData[itemId][size] = quantity;
+        if (cartData[itemId]) {
+            cartData[itemId][size] = quantity;
+        }
 
         setCartItems(cartData);
 
@@ -71,16 +73,17 @@ const ShopContextProvider = (props) => {
         let totalAmount = 0;
         for (const items in cartItems) {
             let itemInfo = products.find((product) => product._id === items);
-            for (const item in cartItems[items]) {
-                try {
-                    if (cartItems[items][item] > 0) {
-                        totalAmount += ((itemInfo.price * cartItems[items][item]));
+            if (itemInfo) {
+                for (const item in cartItems[items]) {
+                    try {
+                        if (cartItems[items][item] > 0) {
+                            totalAmount += ((itemInfo.price * cartItems[items][item]));
+                        }
+                    } catch (error) {
+                        console.log(error); // empty
                     }
-                } catch (error) {
-
                 }
             }
-
         }
         return totalAmount; // + delivery_fee;
     }
