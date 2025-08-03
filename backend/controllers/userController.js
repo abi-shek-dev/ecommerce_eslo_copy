@@ -12,7 +12,7 @@ const createToken = (id) => {
 const loginUser = async (req, res) => {
 
     try {
-        
+
         const { email, password } = req.body;
 
         const user = await userModel.findOne({ email });
@@ -32,7 +32,8 @@ const loginUser = async (req, res) => {
         }
 
     } catch (error) {
-        
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
 
 }
