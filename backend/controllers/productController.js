@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
+import productModel from '../models/productModel.js';
 
 //  function for add product 
 const addProduct = async (req, res) => {
@@ -16,13 +17,26 @@ const addProduct = async (req, res) => {
 
         let imagesUrl = await Promise.all(
             images.map(async (item) => {
-                let result = await cloudinary.uploader.upload(item.path,{resource_type:"image"})
+                let result = await cloudinary.uploader.upload(item.path, { resource_type: "image" })
                 return result.secure_url;
             })
         )
 
-        console.log(name, description, price, category, subCategory, sizes, bestSeller);
-        console.log(imagesUrl);
+        const producctData ={
+            name,
+            description,
+            category,
+            price: Number(price),
+            subCategory,
+            bestSeller: bestSeller === 'true'? true : false,
+            sizes: JSON.parse(sizes),
+            images: imagesUrl,
+            date:Date.now()
+        };
+
+        console.log(producctData);
+        
+        const product = new productModel(producctData)
 
         res.json({ message: "product added successfully" });
 
