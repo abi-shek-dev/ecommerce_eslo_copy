@@ -39,7 +39,7 @@ const addProduct = async (req, res) => {
         const product = new productModel(producctData)
         await product.save();
 
-        res.json({ message: "product added successfully" });
+        res.json({ success: true, message: "product added successfully" });
 
     } catch (error) {
         console.log(error);
