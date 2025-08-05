@@ -68,6 +68,18 @@ const listProduct = async (req, res) => {
 //  function for removing product 
 const removeProduct = async (req, res) => {
 
+    try {
+
+        await productModel.findByIdAndDelete(req.body.id);
+        res.json({ success: true, message: "product removed successfully" });
+
+    } catch (error) {
+
+        console.log(error);
+        res.json({ success: false, message: error.message })
+
+    }
+
 }
 
 //  function for single product info
