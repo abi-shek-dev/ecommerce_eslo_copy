@@ -22,7 +22,7 @@ const addProduct = async (req, res) => {
             })
         )
 
-        const producctData ={
+        const productData ={
             name,
             description,
             category,
@@ -30,13 +30,13 @@ const addProduct = async (req, res) => {
             subCategory,
             bestSeller: bestSeller === 'true'? true : false,
             sizes: JSON.parse(sizes),
-            images: imagesUrl,
+            image: imagesUrl,
             date:Date.now()
         };
 
-        console.log(producctData);
+        console.log(productData);
         
-        const product = new productModel(producctData)
+        const product = new productModel(productData)
         await product.save();
 
         res.json({ success: true, message: "product added successfully" });
