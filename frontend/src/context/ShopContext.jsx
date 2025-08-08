@@ -14,6 +14,7 @@ const ShopContextProvider = (props) => {
     const [showSearch, setShowSearch] = useState(false);
     const [cartItems, setCartItems] = useState({});
     const [products, setProducts] = useState([]);
+    const [token , setToken] = useState('')
     const navigate = useNavigate();
 
 
@@ -108,19 +109,25 @@ const ShopContextProvider = (props) => {
 
     }
 
-    useEffect(() => {
-        console.log("Fetched products:", products)
-    }, [products])
+    // useEffect(() => {
+    //     console.log("Fetched products:", products)
+    // }, [products])
 
 
     useEffect(() => {
         getProductsData();
     }, [])
 
+    useEffect(()=>{
+        if (!token && localStorage.getItem('token')) {
+            setToken(localStorage.getItem('token'))
+        }
+    })
+
     const value = {
         products, currency, delivery_fee, search,
         setSearch, showSearch, setShowSearch, cartItems,
-        addToCart, getCartCount, updateQuantity, getCartAmount, navigate, backendUrl
+        addToCart, getCartCount, updateQuantity, getCartAmount, navigate, backendUrl,token,setToken
     };
 
 
