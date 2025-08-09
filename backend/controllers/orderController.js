@@ -1,8 +1,37 @@
-
+import orderModel from "../models/orderModel.js";
+import userModel from "../models/userModel";
 
 // Placing order using cod method 
 
 const placeOrder = async (req, res) => {
+
+    try {
+
+        const { userId, items, amount, address } = req.body;
+
+        const orderdata ={
+            userId,
+            items,
+            amount,
+            paymentMethod: "COD",
+            payment: false,
+            date: Date.now(),
+            address
+        }
+
+        const newOrder = await orderModel(orderdata)
+        await newOrder.save()
+
+        await userModel.findByIdAndUpdate(userId,{cartData:{}})
+
+        res.json({success:true,message:"order placed successfully"})
+
+    } catch (error) {
+
+        console.log(error);
+        res.json({ success:false,error:error.message })
+
+    }
 
 }
 
@@ -36,4 +65,4 @@ const updateStatus = async (req, res) => {
 
 }
 
-export {placeOrder, placeOrderStripe, placeOrderRazorPay, allOrders, userOrders, updateStatus}
+export { placeOrder, placeOrderStripe, placeOrderRazorPay, allOrders, userOrders, updateStatus }
