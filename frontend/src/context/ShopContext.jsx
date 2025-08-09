@@ -19,15 +19,15 @@ const ShopContextProvider = ({ children }) => {
     const navigate = useNavigate();
 
     // ✅ Add to cart
-    const addToCart = (itemId, size) => {
+    const addToCart = async (itemId, size) => {
         if (!size) {
             toast.error("Please select a size");
             return;
         }
 
+        // Update local cart
         setCartItems(prevCart => {
             const cartData = structuredClone(prevCart);
-
             if (cartData[itemId]?.[size]) {
                 cartData[itemId][size] += 1;
             } else {
@@ -36,6 +36,20 @@ const ShopContextProvider = ({ children }) => {
             }
             return cartData;
         });
+
+        // Sync with backend if logged in
+        if (token) {
+            try {
+                await axios.post(
+                    `${backendUrl}/api/cart/add`,
+                    { itemId, size },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+            } catch (error) {
+                console.error(error);
+                toast.error("Error adding to cart");
+            }
+        }
     };
 
     // ✅ Get cart count
@@ -49,8 +63,8 @@ const ShopContextProvider = ({ children }) => {
         return totalCount;
     };
 
-    // ✅ Update cart quantity
-    const updateQuantity = (itemId, size, quantity) => {
+    // ✅ Update quantity
+    const updateQuantity = async (itemId, size, quantity) => {
         setCartItems(prevCart => {
             const cartData = structuredClone(prevCart);
             if (cartData[itemId]) {
@@ -58,6 +72,19 @@ const ShopContextProvider = ({ children }) => {
             }
             return cartData;
         });
+
+        if (token) {
+            try {
+                await axios.post(
+                    `${backendUrl}/api/cart/update`,
+                    { itemId, size, quantity },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+            } catch (error) {
+                console.error(error);
+                toast.error("Error updating cart");
+            }
+        }
     };
 
     // ✅ Get total amount
@@ -91,6 +118,33 @@ const ShopContextProvider = ({ children }) => {
             toast.error("Something went wrong while fetching products");
         }
     };
+
+    // ✅ Fetch cart from backend
+    const fetchUserCart = async () => {
+        try {
+            const response = await axios.get(`${backendUrl}/api/cart/get`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (response.data.success) {
+                setCartItems(response.data.cartData || {});
+            } else {
+                toast.error("Failed to fetch cart");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Error fetching cart");
+        }
+    };
+
+    // ✅ On token change, sync cart
+    useEffect(() => {
+        if (token) {
+            fetchUserCart();
+        } else {
+            setCartItems({}); // clear cart when logged out
+        }
+    }, [token]);
 
     // ✅ Fetch products on mount
     useEffect(() => {
