@@ -1,5 +1,16 @@
+import { currency } from "../../admin/src/App.jsx";
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
+import Stripe from 'stripe'
+
+// global variables
+
+const currency = 'inr'
+const deliveryCharge = 10
+
+// Gateways initialization
+
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Placing order using cod method 
 
@@ -38,6 +49,52 @@ const placeOrder = async (req, res) => {
 //  placing order using stripe method 
 
 const placeOrderStripe = async (req, res) => {
+
+    try {
+
+        const { userId, items, amount, address } = req.body;
+        const { origin } = req.headers;
+
+        const orderdata = {
+            userId: req.user.id,
+            items,
+            amount,
+            paymentMethod: "Stripe",
+            payment: false,
+            date: Date.now(),
+            address
+        }
+
+        const newOrder = await orderModel(orderdata)
+        await newOrder.save()
+
+        const line_items = items.map((item) => ({
+            price_data: {
+                currency: currency,
+                product_data: {
+                    name: item.name,
+                },
+                unit_amount: item.price * 100,
+            },
+            quantity: item.quantity,
+        }))
+
+        line_items.push({
+            price_data: {
+                currency: currency,
+                product_data: {
+                    name: 'Delivery Fee',
+                },
+                unit_amount: deliveryCharge * 100,
+            },
+            quantity: 1
+        })
+
+        
+
+    } catch (error) {
+
+    }
 
 }
 
