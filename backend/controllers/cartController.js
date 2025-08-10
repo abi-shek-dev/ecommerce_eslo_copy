@@ -7,6 +7,10 @@ const addToCart = async (req, res) => {
         const userId = req.user.id; // from auth middleware
 
         const userData = await userModel.findById(userId);
+        if (!userData) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
         let cartData = userData.cartData || {};
 
         if (!cartData[itemId]) {
@@ -31,9 +35,13 @@ const addToCart = async (req, res) => {
 const updateCart = async (req, res) => {
     try {
         const { itemId, size, quantity } = req.body;
-        const userId = req.user.id; // from auth middleware
+        const userId = req.user.id;
 
         const userData = await userModel.findById(userId);
+        if (!userData) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
         let cartData = userData.cartData || {};
 
         if (!cartData[itemId]) {
@@ -53,11 +61,14 @@ const updateCart = async (req, res) => {
 // Get user cart data
 const getUserCart = async (req, res) => {
     try {
-        const userId = req.user.id; // from auth middleware
+        const userId = req.user.id;
 
         const userData = await userModel.findById(userId);
-        let cartData = userData.cartData || {};
+        if (!userData) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
 
+        let cartData = userData.cartData || {};
         res.json({ success: true, cartData });
     } catch (error) {
         console.log(error);

@@ -1,7 +1,7 @@
 import express from "express";
 import { placeOrder, placeOrderStripe, placeOrderRazorPay, allOrders, userOrders, updateStatus } from "../controllers/orderController.js";
-import { adminAuth } from "../middleware/adminAuth.js";
-import { authUser } from "../middleware/auth.js";
+import  adminAuth  from "../middleware/adminAuth.js";
+import  authUser  from "../middleware/auth.js";
 
 const orderRouter = express.Router();
 
@@ -15,6 +15,6 @@ orderRouter.post("/stripe", authUser, placeOrderStripe);
 orderRouter.post("/razorpay", authUser, placeOrderRazorPay);
 
 // User Features
-orderRouter.post('/useorders',authUser,userOrders)
+orderRouter.post('/userorders', authUser, userOrders)
 
 export default orderRouter;

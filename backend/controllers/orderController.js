@@ -1,5 +1,5 @@
 import orderModel from "../models/orderModel.js";
-import userModel from "../models/userModel";
+import userModel from "../models/userModel.js";
 
 // Placing order using cod method 
 
@@ -9,8 +9,8 @@ const placeOrder = async (req, res) => {
 
         const { userId, items, amount, address } = req.body;
 
-        const orderdata ={
-            userId,
+        const orderdata = {
+            userId: req.user.id,
             items,
             amount,
             paymentMethod: "COD",
@@ -22,14 +22,14 @@ const placeOrder = async (req, res) => {
         const newOrder = await orderModel(orderdata)
         await newOrder.save()
 
-        await userModel.findByIdAndUpdate(userId,{cartData:{}})
+        await userModel.findByIdAndUpdate(req.user.id, { cartData: {} });
 
-        res.json({success:true,message:"order placed successfully"})
+        res.json({ success: true, message: "order placed successfully" })
 
     } catch (error) {
 
         console.log(error);
-        res.json({ success:false,error:error.message })
+        res.json({ success: false, error: error.message })
 
     }
 
