@@ -28,56 +28,71 @@ const PlaceOrder = () => {
     setFormData(data => ({ ...data, [name]: value }));
   }
 
-const onSubmitHandler = async (event) => {
-  event.preventDefault();
-  try {
-    let orderItems = [];
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
+    try {
+      let orderItems = [];
 
-    for (const items in cartItems) {
-      for (const item in cartItems[items]) {
-        if (cartItems[items][item] > 0) {
-          const itemInfo = structuredClone(
-            products.find(product => product._id === items)
-          );
-          if (itemInfo) {
-            itemInfo.size = item; // fixed from "-" to "="
-            itemInfo.quantity = cartItems[items][item];
-            orderItems.push(itemInfo);
+      for (const items in cartItems) {
+        for (const item in cartItems[items]) {
+          if (cartItems[items][item] > 0) {
+            const itemInfo = structuredClone(
+              products.find(product => product._id === items)
+            );
+            if (itemInfo) {
+              itemInfo.size = item; // fixed from "-" to "="
+              itemInfo.quantity = cartItems[items][item];
+              orderItems.push(itemInfo);
+            }
           }
         }
       }
+
+      let orderData = {
+        address: formData,
+        items: orderItems,
+        amount: getCartAmount() + delivery_fee,
+      };
+
+      switch (method) {
+        case 'cod':
+          const response = await axios.post(
+            backendUrl + '/api/order/place',
+            orderData,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          console.log("Order response:", response.data); // See success in console
+          if (response.data.success) {
+            setCartItems({});
+            navigate('/orders');
+          } else {
+            toast.error(response.data.message);
+          }
+          break;
+
+        case 'stripe':
+          const responseStripe = await axios.post(
+            backendUrl + '/api/order/stripe',
+            orderData,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          if (responseStripe.data.success) {
+            const { session_url } = responseStripe.data;
+            window.location.replace(session_url);
+          } else {
+            toast.error(responseStripe.data.message);
+          }
+
+          break;
+
+        default:
+          break;
+      }
+    } catch (error) {
+      console.error("Order placement error:", error);
+      toast.error("Something went wrong placing the order");
     }
-
-    let orderData = {
-      address: formData,
-      items: orderItems,
-      amount: getCartAmount() + delivery_fee,
-    };
-
-    switch (method) {
-      case 'cod':
-        const response = await axios.post(
-          backendUrl + '/api/order/place',
-          orderData,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        console.log("Order response:", response.data); // See success in console
-        if (response.data.success) {
-          setCartItems({});
-          navigate('/orders');
-        } else {
-          toast.error(response.data.message);
-        }
-        break;
-
-      default:
-        break;
-    }
-  } catch (error) {
-    console.error("Order placement error:", error);
-    toast.error("Something went wrong placing the order");
-  }
-};
+  };
 
 
   return (
