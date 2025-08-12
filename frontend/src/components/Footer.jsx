@@ -15,10 +15,10 @@ const Footer = () => {
         <div>
             <p className='text-xl font-medium mb-5'>COMPANY</p>
             <ul className='flex flex-col gap-1 text-gray-600'>
-                <li>Home</li>
-                <li>About Us</li>
-                <li>Delivery</li>
-                <li>Privacy Policy</li>
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About Us</a></li>
+                <li><a href="https://merchant.razorpay.com/policy/R3apnQdZ9Nalx4/shipping">Delivery</a></li>
+                <li><a href="https://merchant.razorpay.com/policy/R3apnQdZ9Nalx4/privacy">Privacy Policy</a></li>
             </ul>
         </div>
 
