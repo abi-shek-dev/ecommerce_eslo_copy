@@ -100,4 +100,68 @@ const singleProduct = async (req, res) => {
 
 }
 
-export { listProduct, addProduct, removeProduct, singleProduct }
+
+// Add or update rating
+const addRating = async (req, res) => {
+    try {
+        const { productId, rating } = req.body;
+        const userId = req.user.id; // from auth middleware
+
+        if (!productId || !rating) {
+            return res.status(400).json({ success: false, message: 'Product ID and rating are required' });
+        }
+
+        const product = await productModel.findById(productId);
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        const existingRating = product.ratings.find(r => r.userId.toString() === userId);
+        if (existingRating) {
+            existingRating.rating = rating; // update if already rated
+        } else {
+            product.ratings.push({ userId, rating });
+        }
+
+        await product.save();
+
+        const total = product.ratings.reduce((sum, r) => sum + r.rating, 0);
+        const average = total / product.ratings.length;
+
+        res.json({ success: true, average, count: product.ratings.length });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Get ratings info
+const getRatings = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const userId = req.user.id;
+
+        const product = await productModel.findById(productId);
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        const total = product.ratings.reduce((sum, r) => sum + r.rating, 0);
+        const average = product.ratings.length > 0 ? total / product.ratings.length : 0;
+
+        const userRatingObj = product.ratings.find(r => r.userId.toString() === userId);
+        const userRating = userRatingObj ? userRatingObj.rating : 0;
+
+        res.json({
+            success: true,
+            average,
+            count: product.ratings.length,
+            userRating
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export { listProduct, addProduct, removeProduct, singleProduct, addRating, getRatings };
