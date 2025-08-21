@@ -5,6 +5,7 @@ import RelatedProducts from '../components/RelatedProducts';
 import StarRating from '../components/StarRating';
 import axios from 'axios';
 import { toast } from 'react-toastify'; // <-- 1. IMPORT TOAST
+import ProductSize from '../components/ProductSize';
 
 const Product = () => {
   const { productId } = useParams();
@@ -78,11 +79,11 @@ const Product = () => {
           <div className=' flex sm:flex-col overflow-x-auto sm:overflow-y-scroll justify-between sm:justify-normal sm:w-[18.7%] w-full'>
             {
               productData.image.map((item, index) => (
-                <img onClick={() => setImage(item)} src={item} key={index} className='w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer' alt="" />
+                <img onClick={() => setImage(item)} src={item} key={index} className='w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer rounded-xl' alt="" />
               ))
             }
           </div>
-          <div className='w-full sm:w-[80%]'>
+          <div className='w-full sm:w-[80%] rounded-2xl overflow-hidden'>
             <img className='w-full h-auto' src={image} alt="" />
           </div>
         </div>
@@ -123,7 +124,7 @@ const Product = () => {
       </div>
 
       {/* ------------------------ Product Description & Review -------------------------- */}
-      <div className='mt-20'>
+      {/* <div className='mt-20'>
         <div className='flex'>
           <p className='border px-5 py-3 text-sm'> Reviews ({ratingCount})</p>
         </div>
@@ -131,7 +132,9 @@ const Product = () => {
           <p>An e-commerce website is an online platform that facilitates the buying and selling of products or services over the internet. It serves as a virtual marketplace where businesses and individuals can showcase their products, interact with customers, and conduct transactions without the need for a physical presence. E-commerce websites have gained immense popularity due to their convenience, accessibility, and the global reach they offer.</p>
           <p>E-commerce websites typically display products or services along with detailed descriptions, images, prices, and any available variations (e.g., sizes, colors). Each product usually has its own dedicated page with relevant information.</p>
         </div>
-      </div>
+      </div> */}
+
+      <ProductSize />
 
       {/* ------------------------- Related Products ------------------------------------ */}
       <RelatedProducts category={productData.category} subCategory={productData.subCategory} />
