@@ -7,14 +7,14 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 
 const PlaceOrder = () => {
-  const [method, setMethod] = useState('cod');
+  const [method, setMethod] = useState('razorpay');
   const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
 
   const [formData, setFormData] = useState({
     firstname: '',
     lastname: '',
     email: '',
-    street: '',
+    street: '', 
     city: '',
     state: '',
     zipcode: '',
@@ -40,7 +40,6 @@ const PlaceOrder = () => {
       handler: async (response) => {
         console.log(response);
         try {
-
           const { data } = await axios.post(
             backendUrl + '/api/order/verifyRazorpay',
             response,
@@ -50,7 +49,6 @@ const PlaceOrder = () => {
             navigate('/orders');
             setCartItems({});
           }
-
         } catch (error) {
           console.log(error);
           toast.error(error);
@@ -103,20 +101,19 @@ const PlaceOrder = () => {
           }
           break;
 
-        case 'stripe':
-          const responseStripe = await axios.post(
-            backendUrl + '/api/order/stripe',
-            orderData,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-          if (responseStripe.data.success) {
-            const { session_url } = responseStripe.data;
-            window.location.replace(session_url);
-          } else {
-            toast.error(responseStripe.data.message);
-          }
-
-          break;
+        // case 'stripe':
+        //   const responseStripe = await axios.post(
+        //     backendUrl + '/api/order/stripe',
+        //     orderData,
+        //     { headers: { Authorization: `Bearer ${token}` } }
+        //   );
+        //   if (responseStripe.data.success) {
+        //     const { session_url } = responseStripe.data;
+        //     window.location.replace(session_url);
+        //   } else {
+        //     toast.error(responseStripe.data.message);
+        //   }
+        //   break;
 
         case 'razorpay':
           const responseRazorPay = await axios.post(
@@ -127,8 +124,6 @@ const PlaceOrder = () => {
           if (responseRazorPay.data.success) {
             initPay(responseRazorPay.data.order);
           }
-
-
           break;
 
         default:
@@ -139,7 +134,6 @@ const PlaceOrder = () => {
       toast.error("Something went wrong placing the order");
     }
   };
-
 
   return (
     <form onSubmit={onSubmitHandler} className='flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t'>
