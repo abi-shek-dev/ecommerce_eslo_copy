@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import productModel from '../models/productModel.js';
-import fs from 'fs';
+// fs is no longer needed since you are using memoryStorage with multer
+// import fs from 'fs'; 
 
 // function for add product 
 const addProduct = async (req, res) => {
@@ -9,37 +10,37 @@ const addProduct = async (req, res) => {
 
         const { name, description, price, category, subCategory, sizes, bestseller } = req.body;
 
+        // Ensure that image2, 3, and 4 are accessed correctly.
+        // req.files.files.image2[0] is not a valid object path.
         const image1 = req.files.image1 ? req.files.image1[0] : undefined;
-        const image2 = req.files.image2 ? req.files.files.image2[0] : undefined;
+        const image2 = req.files.image2 ? req.files.image2[0] : undefined;
         const image3 = req.files.image3 ? req.files.image3[0] : undefined;
         const image4 = req.files.image4 ? req.files.image4[0] : undefined;
 
         const images = [image1, image2, image3, image4].filter(item => item !== undefined);
 
-        console.log("Images to upload:", images.map(img => img.path));
+        console.log("Images to upload:", images.map(img => img.originalname));
 
         let imagesUrl = await Promise.all(
             images.map(async (item) => {
                 try {
-                    let result = await cloudinary.uploader.upload(item.path, { resource_type: "image" });
-                    console.log("Uploaded to Cloudinary:", result.secure_url);
+                    // This is the CRITICAL change. Upload to Cloudinary using the file buffer.
+                    // The `item` object now contains `buffer` and `mimetype` properties from multer.
+                    const b64 = Buffer.from(item.buffer).toString('base64');
+                    const dataURI = 'data:' + item.mimetype + ';base64,' + b64;
 
-                    // Deleting the file might fail on Vercel. This part is not critical.
-                    // It's here to clean up local temporary files.
-                    fs.unlink(item.path, (err) => {
-                        if (err) console.error("Error deleting file:", err);
-                        else console.log("File deleted:", item.path);
-                    });
+                    let result = await cloudinary.uploader.upload(dataURI, { resource_type: "image" });
+                    console.log("Uploaded to Cloudinary:", result.secure_url);
 
                     return result.secure_url;
                 } catch (uploadError) {
-                    console.error("Cloudinary upload failed for:", item.path, uploadError);
+                    console.error("Cloudinary upload failed for:", item.originalname, uploadError);
                     throw new Error("Failed to upload image");
                 }
             })
         );
 
-        // Corrected line: Safely parse sizes to prevent crash
+        // Safely parse sizes to prevent a crash if the value is null or an empty string.
         const parsedSizes = sizes ? JSON.parse(sizes) : [];
 
         const productData = {
