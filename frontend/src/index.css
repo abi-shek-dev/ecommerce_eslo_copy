@@ -40,3 +40,17 @@ a.active hr {
 /* .no-spinner {
   -moz-appearance: textfield;
 } */
+
+/* Skeleton shimmer animation */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-shimmer {
+  animation: shimmer 1.5s infinite ease-in-out;
+}

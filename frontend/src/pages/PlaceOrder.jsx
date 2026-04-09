@@ -86,7 +86,7 @@ const PlaceOrder = () => {
       };
 
       switch (method) {
-        case 'cod':
+        case 'cod': {
           const response = await axios.post(
             backendUrl + '/api/order/place',
             orderData,
@@ -100,6 +100,7 @@ const PlaceOrder = () => {
             toast.error(response.data.message);
           }
           break;
+        }
 
         // case 'stripe':
         //   const responseStripe = await axios.post(
@@ -115,7 +116,7 @@ const PlaceOrder = () => {
         //   }
         //   break;
 
-        case 'razorpay':
+        case 'razorpay': {
           const responseRazorPay = await axios.post(
             backendUrl + '/api/order/razorpay',
             orderData,
@@ -125,6 +126,7 @@ const PlaceOrder = () => {
             initPay(responseRazorPay.data.order);
           }
           break;
+        }
 
         default:
           break;
