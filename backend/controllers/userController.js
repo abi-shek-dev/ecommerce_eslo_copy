@@ -83,6 +83,78 @@ const registerUser = async (req, res) => {
     }
 }
 
+// Route for getting logged-in user profile
+const getUserProfile = async (req, res) => {
+    try {
+        const user = await userModel.findById(req.user.id).select("-password");
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        res.json({ success: true, user });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+// Route for updating logged-in user profile
+const updateUserProfile = async (req, res) => {
+    try {
+        const {
+            name = "",
+            email = "",
+            phone = "",
+            address = "",
+            city = "",
+            country = ""
+        } = req.body;
+
+        const trimmedName = name.trim();
+        const trimmedEmail = email.trim().toLowerCase();
+
+        if (!trimmedName) {
+            return res.json({ success: false, message: "Name is required" });
+        }
+
+        if (!validator.isEmail(trimmedEmail)) {
+            return res.json({ success: false, message: "Please enter a valid email" });
+        }
+
+        const existingUser = await userModel.findOne({
+            email: trimmedEmail,
+            _id: { $ne: req.user.id }
+        });
+
+        if (existingUser) {
+            return res.json({ success: false, message: "Email is already in use" });
+        }
+
+        const updatedUser = await userModel.findByIdAndUpdate(
+            req.user.id,
+            {
+                name: trimmedName,
+                email: trimmedEmail,
+                phone: phone.trim(),
+                address: address.trim(),
+                city: city.trim(),
+                country: country.trim()
+            },
+            { new: true, runValidators: true }
+        ).select("-password");
+
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        res.json({ success: true, message: "Profile updated successfully", user: updatedUser });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
 // Route for Admin Login
 const adminLogin = async (req, res) => {
 
@@ -106,4 +178,4 @@ const adminLogin = async (req, res) => {
 
 }
 
-export { loginUser, registerUser, adminLogin };
+export { loginUser, registerUser, adminLogin, getUserProfile, updateUserProfile };
